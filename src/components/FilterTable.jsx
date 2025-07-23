@@ -12,7 +12,8 @@ import {
 } from "@mui/material";
 import ChangeHistoryIcon from "@mui/icons-material/ChangeHistory";
 import TableFoot from "./TableFoot";
-// Sample data
+
+// Sample data (unchanged)
 const rows = [
   { id: 1, role: "Developer", name: "Alice", percentage: 60, lead: "Bob" },
   { id: 2, role: "Designer", name: "Eve", percentage: 40, lead: "Bob" },
@@ -50,7 +51,9 @@ export default function ProjectTable() {
     setOrderBy(property);
   };
 
-  const handleClick = (event, id) => {
+  // Separate handler for checkbox clicks only
+  const handleCheckboxClick = (event, id) => {
+    event.stopPropagation(); // Prevent row click event
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
     if (selectedIndex === -1) {
@@ -66,6 +69,12 @@ export default function ProjectTable() {
       );
     }
     setSelected(newSelected);
+  };
+
+  // Optional: Row click handler for other actions (like navigation)
+  const handleRowClick = (event, id) => {
+    console.log("Row clicked:", id);
+    // Add any row-specific actions here
   };
 
   const isSelected = (id) => selected.indexOf(id) !== -1;
@@ -128,15 +137,17 @@ export default function ProjectTable() {
                 return (
                   <TableRow
                     hover
-                    onClick={(event) => handleClick(event, row.id)}
-                    role="checkbox"
-                    aria-checked={isItemSelected}
+                    onClick={(event) => handleRowClick(event, row.id)} // Optional row click handler
                     tabIndex={-1}
                     key={row.id}
                     selected={isItemSelected}
                   >
                     <TableCell padding="checkbox">
-                      <Checkbox checked={isItemSelected} />
+                      <Checkbox 
+                        checked={isItemSelected}
+                        onClick={(event) => handleCheckboxClick(event, row.id)} // Specific checkbox handler
+                        inputProps={{ 'aria-labelledby': `checkbox-${row.id}` }}
+                      />
                     </TableCell>
                     <TableCell>{row.role}</TableCell>
                     <TableCell>{row.name}</TableCell>
