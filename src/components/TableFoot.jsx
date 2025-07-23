@@ -8,7 +8,7 @@ function TableFoot() {
         padding: 2,
         display: "flex",
         justifyContent: "space-between",
-        backgroundColor: "#f5f5f5",
+        backgroundColor: "#e1e6ed",
       }}
     >
       <Box>
