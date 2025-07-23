@@ -204,14 +204,30 @@ export default function ProjectTable({ searchValue, filters }) {
                 </TableCell>
               </TableRow>
             ) : (
-              // Regular table rows
+              // Regular table rows with alternating colors
               filteredRows
                 .slice()
                 .sort(getComparator(order, orderBy))
-                .map((row) => {
+                .map((row, index) => {
                   const isItemSelected = isSelected(row.id);
                   return (
-                    <TableRow hover key={row.id} selected={isItemSelected}>
+                    <TableRow 
+                      hover 
+                      key={row.id} 
+                      selected={isItemSelected}
+                      sx={{
+                        backgroundColor: index % 2 === 0 ? "#ffffff" : "#f7f7f7",
+                        "&:hover": {
+                          backgroundColor: index % 2 === 0 ? "#f5f5f5" : "#eeeeee",
+                        },
+                        "&.Mui-selected": {
+                          backgroundColor: index % 2 === 0 ? "#e3f2fd" : "#e1f5fe",
+                          "&:hover": {
+                            backgroundColor: index % 2 === 0 ? "#bbdefb" : "#b3e5fc",
+                          },
+                        },
+                      }}
+                    >
                       <TableCell padding="checkbox">
                         <Checkbox
                           checked={isItemSelected}
