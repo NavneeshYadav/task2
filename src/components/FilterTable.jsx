@@ -58,23 +58,51 @@ function getComparator(order, orderBy) {
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-export default function ProjectTable({ searchValue }) {
+export default function ProjectTable({ searchValue, filters }) {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("role");
   const [selected, setSelected] = useState([]);
   const [rows, setRows] = useState(initialRows);
 
-  // Filter rows based on search value
+  // Filter rows based on search value and filters
   const filteredRows = useMemo(() => {
-    if (!searchValue) return rows;
-    
-    return rows.filter((row) =>
-      row.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-      row.role.toLowerCase().includes(searchValue.toLowerCase()) ||
-      row.lead.toLowerCase().includes(searchValue.toLowerCase()) ||
-      row.percentage.toString().includes(searchValue)
-    );
-  }, [rows, searchValue]);
+    let filtered = rows;
+
+    // Apply search filter
+    if (searchValue) {
+      filtered = filtered.filter((row) =>
+        row.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+        row.role.toLowerCase().includes(searchValue.toLowerCase()) ||
+        row.lead.toLowerCase().includes(searchValue.toLowerCase()) ||
+        row.percentage.toString().includes(searchValue)
+      );
+    }
+
+    // Apply advanced filters
+    if (filters.role) {
+      filtered = filtered.filter((row) => row.role === filters.role);
+    }
+
+    if (filters.lead) {
+      filtered = filtered.filter((row) => row.lead === filters.lead);
+    }
+
+    if (filters.name) {
+      filtered = filtered.filter((row) =>
+        row.name.toLowerCase().includes(filters.name.toLowerCase())
+      );
+    }
+
+    if (filters.percentageMin) {
+      filtered = filtered.filter((row) => row.percentage >= Number(filters.percentageMin));
+    }
+
+    if (filters.percentageMax) {
+      filtered = filtered.filter((row) => row.percentage <= Number(filters.percentageMax));
+    }
+
+    return filtered;
+  }, [rows, searchValue, filters]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -167,8 +195,8 @@ export default function ProjectTable({ searchValue }) {
                       No results found
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {searchValue 
-                        ? `No records match "${searchValue}"`
+                      {searchValue || Object.values(filters).some(f => f !== "")
+                        ? "No records match your search criteria"
                         : "No data available"
                       }
                     </Typography>
