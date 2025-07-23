@@ -1,15 +1,12 @@
-import { useState } from "react";
 import TextField from "@mui/material/TextField";
 import InputAdornment from "@mui/material/InputAdornment";
 import IconButton from "@mui/material/IconButton";
 import SearchIcon from "@mui/icons-material/Search";
 import ClearIcon from "@mui/icons-material/Clear";
 
-export default function SearchInput() {
-  const [value, setValue] = useState("");
-
-  const handleChange = (e) => setValue(e.target.value);
-  const handleClear = () => setValue("");
+export default function SearchInput({ value, onChange }) {
+  const handleChange = (e) => onChange(e.target.value);
+  const handleClear = () => onChange("");
 
   return (
     <TextField

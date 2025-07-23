@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Table,
   TableBody,
@@ -11,9 +11,13 @@ import {
   TableSortLabel,
   Select,
   MenuItem,
+  Typography,
+  Box,
 } from "@mui/material";
 import ChangeHistoryIcon from "@mui/icons-material/ChangeHistory";
+import SearchOffIcon from "@mui/icons-material/SearchOff";
 import TableFoot from "./TableFoot";
+
 // Custom project role rank for sorting → lower number = higher rank
 const rolePriority = {
   "Vice President": 1,
@@ -33,7 +37,7 @@ const initialRows = [
   { id: 4, name: "David", percentage: 70, lead: "Y" },
   { id: 5, name: "Olivia", percentage: 85, lead: "Y" },
   { id: 6, name: "Emma", percentage: 90, lead: "N" },
-].map((row) => ({ ...row, role: "Vice President" })); // set default role
+].map((row) => ({ ...row, role: "Vice President" }));
 
 // Custom comparator for project role
 function customRoleComparator(a, b) {
@@ -47,17 +51,30 @@ function descendingComparator(a, b, orderBy) {
   if (b[orderBy] > a[orderBy]) return 1;
   return 0;
 }
+
 function getComparator(order, orderBy) {
   return order === "desc"
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-export default function ProjectTable() {
+export default function ProjectTable({ searchValue }) {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("role");
   const [selected, setSelected] = useState([]);
   const [rows, setRows] = useState(initialRows);
+
+  // Filter rows based on search value
+  const filteredRows = useMemo(() => {
+    if (!searchValue) return rows;
+    
+    return rows.filter((row) =>
+      row.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+      row.role.toLowerCase().includes(searchValue.toLowerCase()) ||
+      row.lead.toLowerCase().includes(searchValue.toLowerCase()) ||
+      row.percentage.toString().includes(searchValue)
+    );
+  }, [rows, searchValue]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -133,43 +150,71 @@ export default function ProjectTable() {
           </TableHead>
 
           <TableBody>
-            {rows
-              .slice()
-              .sort(getComparator(order, orderBy))
-              .map((row) => {
-                const isItemSelected = isSelected(row.id);
-                return (
-                  <TableRow hover key={row.id} selected={isItemSelected}>
-                    <TableCell padding="checkbox">
-                      <Checkbox
-                        checked={isItemSelected}
-                        onClick={(event) => handleCheckboxClick(event, row.id)}
-                      />
-                    </TableCell>
+            {filteredRows.length === 0 ? (
+              // Not Found Message
+              <TableRow>
+                <TableCell colSpan={5} align="center" sx={{ py: 8 }}>
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      gap: 2,
+                    }}
+                  >
+                    <SearchOffIcon sx={{ fontSize: 48, color: "text.secondary" }} />
+                    <Typography variant="h6" color="text.secondary">
+                      No results found
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {searchValue 
+                        ? `No records match "${searchValue}"`
+                        : "No data available"
+                      }
+                    </Typography>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            ) : (
+              // Regular table rows
+              filteredRows
+                .slice()
+                .sort(getComparator(order, orderBy))
+                .map((row) => {
+                  const isItemSelected = isSelected(row.id);
+                  return (
+                    <TableRow hover key={row.id} selected={isItemSelected}>
+                      <TableCell padding="checkbox">
+                        <Checkbox
+                          checked={isItemSelected}
+                          onClick={(event) => handleCheckboxClick(event, row.id)}
+                        />
+                      </TableCell>
 
-                    <TableCell sx={{ width: 400 }}>
-                      <Select
-                        value={row.role}
-                        onChange={(e) =>
-                          handleRoleChange(row.id, e.target.value)
-                        }
-                        size="small"
-                        fullWidth
-                      >
-                        {roleOptions.map((opt) => (
-                          <MenuItem key={opt} value={opt}>
-                            {opt}
-                          </MenuItem>
-                        ))}
-                      </Select>
-                    </TableCell>
+                      <TableCell sx={{ width: 400 }}>
+                        <Select
+                          value={row.role}
+                          onChange={(e) =>
+                            handleRoleChange(row.id, e.target.value)
+                          }
+                          size="small"
+                          fullWidth
+                        >
+                          {roleOptions.map((opt) => (
+                            <MenuItem key={opt} value={opt}>
+                              {opt}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </TableCell>
 
-                    <TableCell>{row.name}</TableCell>
-                    <TableCell>{row.percentage}%</TableCell>
-                    <TableCell>{row.lead}</TableCell>
-                  </TableRow>
-                );
-              })}
+                      <TableCell>{row.name}</TableCell>
+                      <TableCell>{row.percentage}%</TableCell>
+                      <TableCell>{row.lead}</TableCell>
+                    </TableRow>
+                  );
+                })
+            )}
           </TableBody>
         </Table>
       </TableContainer>

@@ -3,7 +3,11 @@ import SearchInput from "./components/SearchInput";
 import TuneIcon from "@mui/icons-material/Tune";
 import Box from "@mui/material/Box";
 import FilterableTable from "./components/FilterTable";
+import { useState } from "react";
+
 function App() {
+  const [searchValue, setSearchValue] = useState("");
+
   return (
     <Box>
       <Box
@@ -15,12 +19,15 @@ function App() {
           paddingY: 2,
         }}
       >
-        <SearchInput />
+        <SearchInput 
+          value={searchValue}
+          onChange={setSearchValue}
+        />
         <TuneIcon />
       </Box>
 
       <Box sx={{ padding: 2 }}>
-        <FilterableTable />
+        <FilterableTable searchValue={searchValue} />
       </Box>
     </Box>
   );
