@@ -9,10 +9,9 @@ import {
   Paper,
   Checkbox,
   TableSortLabel,
-  Toolbar,
-  Typography,
 } from "@mui/material";
 import ChangeHistoryIcon from "@mui/icons-material/ChangeHistory";
+import TableFoot from "./TableFoot";
 // Sample data
 const rows = [
   { id: 1, role: "Developer", name: "Alice", percentage: 60, lead: "Bob" },
@@ -149,6 +148,7 @@ export default function ProjectTable() {
           </TableBody>
         </Table>
       </TableContainer>
+      <TableFoot />
     </Paper>
   );
 }
