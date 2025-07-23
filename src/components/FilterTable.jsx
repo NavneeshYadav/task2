@@ -9,27 +9,40 @@ import {
   Paper,
   Checkbox,
   TableSortLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import ChangeHistoryIcon from "@mui/icons-material/ChangeHistory";
 import TableFoot from "./TableFoot";
+// Custom project role rank for sorting → lower number = higher rank
+const rolePriority = {
+  "Vice President": 1,
+  "Senior Project Manager": 2,
+  "Project Manager": 3,
+  "Assistant Project Manager": 4,
+};
 
-// Sample data (unchanged)
-const rows = [
-  { id: 1, role: "Developer", name: "Alice", percentage: 60, lead: "Bob" },
-  { id: 2, role: "Designer", name: "Eve", percentage: 40, lead: "Bob" },
-  { id: 3, role: "QA", name: "Charlie", percentage: 100, lead: "Dave" },
-  { id: 4, role: "Developer", name: "Alice", percentage: 60, lead: "Bob" },
-  { id: 5, role: "Designer", name: "Eve", percentage: 40, lead: "Bob" },
-  { id: 6, role: "QA", name: "Charlie", percentage: 100, lead: "Dave" },
-  { id: 7, role: "Developer", name: "Alice", percentage: 60, lead: "Bob" },
-  { id: 8, role: "Designer", name: "Eve", percentage: 40, lead: "Bob" },
-  { id: 9, role: "QA", name: "Charlie", percentage: 100, lead: "Dave" },
-  { id: 10, role: "Developer", name: "Alice", percentage: 60, lead: "Bob" },
-  { id: 11, role: "Designer", name: "Eve", percentage: 40, lead: "Bob" },
-  { id: 12, role: "QA", name: "Charlie", percentage: 100, lead: "Dave" },
-];
+// Default options for select dropdown
+const roleOptions = Object.keys(rolePriority);
 
+// Sample data
+const initialRows = [
+  { id: 1, name: "Alice", percentage: 60, lead: "Y" },
+  { id: 2, name: "Eve", percentage: 40, lead: "N" },
+  { id: 3, name: "Charlie", percentage: 100, lead: "N" },
+  { id: 4, name: "David", percentage: 70, lead: "Y" },
+  { id: 5, name: "Olivia", percentage: 85, lead: "Y" },
+  { id: 6, name: "Emma", percentage: 90, lead: "N" },
+].map((row) => ({ ...row, role: "Vice President" })); // set default role
+
+// Custom comparator for project role
+function customRoleComparator(a, b) {
+  return rolePriority[a.role] - rolePriority[b.role];
+}
+
+// General comparators
 function descendingComparator(a, b, orderBy) {
+  if (orderBy === "role") return customRoleComparator(b, a);
   if (b[orderBy] < a[orderBy]) return -1;
   if (b[orderBy] > a[orderBy]) return 1;
   return 0;
@@ -44,6 +57,7 @@ export default function ProjectTable() {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("role");
   const [selected, setSelected] = useState([]);
+  const [rows, setRows] = useState(initialRows);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -51,33 +65,22 @@ export default function ProjectTable() {
     setOrderBy(property);
   };
 
-  // Separate handler for checkbox clicks only
   const handleCheckboxClick = (event, id) => {
-    event.stopPropagation(); // Prevent row click event
+    event.stopPropagation();
     const selectedIndex = selected.indexOf(id);
     let newSelected = [];
-    if (selectedIndex === -1) {
-      newSelected = newSelected.concat(selected, id);
-    } else if (selectedIndex === 0) {
-      newSelected = newSelected.concat(selected.slice(1));
-    } else if (selectedIndex === selected.length - 1) {
-      newSelected = newSelected.concat(selected.slice(0, -1));
-    } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(
-        selected.slice(0, selectedIndex),
-        selected.slice(selectedIndex + 1)
-      );
-    }
+    if (selectedIndex === -1) newSelected = [...selected, id];
+    else newSelected = selected.filter((s) => s !== id);
     setSelected(newSelected);
   };
 
-  // Optional: Row click handler for other actions (like navigation)
-  const handleRowClick = (event, id) => {
-    console.log("Row clicked:", id);
-    // Add any row-specific actions here
+  const handleRoleChange = (id, newRole) => {
+    setRows((prev) =>
+      prev.map((row) => (row.id === id ? { ...row, role: newRole } : row))
+    );
   };
 
-  const isSelected = (id) => selected.indexOf(id) !== -1;
+  const isSelected = (id) => selected.includes(id);
 
   return (
     <Paper>
@@ -85,7 +88,7 @@ export default function ProjectTable() {
         <Table>
           <TableHead sx={{ backgroundColor: "#e1e6ed" }}>
             <TableRow>
-              <TableCell padding="checkbox"></TableCell>
+              <TableCell padding="checkbox" />
               <TableCell>
                 <TableSortLabel
                   active={orderBy === "role"}
@@ -128,6 +131,7 @@ export default function ProjectTable() {
               </TableCell>
             </TableRow>
           </TableHead>
+
           <TableBody>
             {rows
               .slice()
@@ -135,21 +139,31 @@ export default function ProjectTable() {
               .map((row) => {
                 const isItemSelected = isSelected(row.id);
                 return (
-                  <TableRow
-                    hover
-                    onClick={(event) => handleRowClick(event, row.id)} // Optional row click handler
-                    tabIndex={-1}
-                    key={row.id}
-                    selected={isItemSelected}
-                  >
+                  <TableRow hover key={row.id} selected={isItemSelected}>
                     <TableCell padding="checkbox">
-                      <Checkbox 
+                      <Checkbox
                         checked={isItemSelected}
-                        onClick={(event) => handleCheckboxClick(event, row.id)} // Specific checkbox handler
-                        inputProps={{ 'aria-labelledby': `checkbox-${row.id}` }}
+                        onClick={(event) => handleCheckboxClick(event, row.id)}
                       />
                     </TableCell>
-                    <TableCell>{row.role}</TableCell>
+
+                    <TableCell sx={{ width: 400 }}>
+                      <Select
+                        value={row.role}
+                        onChange={(e) =>
+                          handleRoleChange(row.id, e.target.value)
+                        }
+                        size="small"
+                        fullWidth
+                      >
+                        {roleOptions.map((opt) => (
+                          <MenuItem key={opt} value={opt}>
+                            {opt}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </TableCell>
+
                     <TableCell>{row.name}</TableCell>
                     <TableCell>{row.percentage}%</TableCell>
                     <TableCell>{row.lead}</TableCell>
