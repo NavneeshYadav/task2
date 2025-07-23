@@ -189,13 +189,15 @@ function App() {
 
               <Divider sx={{ my: 1 }} />
 
-              {/* Action Buttons */}
-              <Box sx={{ display: "flex", gap: 1, justifyContent: "flex-end" }}>
-                <Button variant="outlined" size="small" onClick={handleClearFilters}>
-                  Clear All
-                </Button>
-                <Button variant="contained" size="small" onClick={handleFilterClose}>
-                  Apply Filters
+              {/* Clear All Button only */}
+              <Box sx={{ display: "flex", justifyContent: "center" }}>
+                <Button 
+                  variant="outlined" 
+                  size="small" 
+                  onClick={handleClearFilters}
+                  disabled={!hasActiveFilters}
+                >
+                  Clear All Filters
                 </Button>
               </Box>
             </Box>
