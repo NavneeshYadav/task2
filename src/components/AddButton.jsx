@@ -12,7 +12,6 @@ import {
   MenuItem,
   Box,
   Typography,
-  Alert,
 } from "@mui/material";
 
 // Role options (same as in your filter table)
@@ -25,7 +24,7 @@ const roleOptions = [
 
 const leadOptions = ["Y", "N"];
 
-function AddButton() {
+function AddButton({ onAddRole }) { // ✅ Accept callback prop
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     role: "Vice President", // default value
@@ -36,7 +35,6 @@ function AddButton() {
   const [errors, setErrors] = useState({
     name: "",
     percentage: "",
-    // ✅ Removed lead from errors state
   });
 
   const handleClickOpen = () => {
@@ -55,7 +53,6 @@ function AddButton() {
     setErrors({
       name: "",
       percentage: "",
-      // ✅ Removed lead from errors reset
     });
   };
 
@@ -79,8 +76,6 @@ function AddButton() {
     } else if (formData.percentage < 0 || formData.percentage > 100) {
       newErrors.percentage = "Percentage must be between 0 and 100";
     }
-    
-    // ✅ Removed lead validation since it always has a valid default value
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -91,11 +86,10 @@ function AddButton() {
       return;
     }
 
-    // Process the form data (e.g., add to table, send to API)
-    console.log("New role data:", formData);
-    
-    // You can pass this data back to parent component or handle it here
-    // For example: onAddRole(formData) if passed as prop
+    // ✅ Call the callback function to add the role
+    if (onAddRole) {
+      onAddRole(formData);
+    }
     
     handleClose();
   };
@@ -195,7 +189,7 @@ function AddButton() {
               )}
             </Box>
 
-            {/* Reporting Lead Select - ✅ Simplified without error handling */}
+            {/* Reporting Lead Select */}
             <FormControl fullWidth>
               <InputLabel>Reporting Lead *</InputLabel>
               <Select

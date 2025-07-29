@@ -20,9 +20,20 @@ import {
 } from "@mui/material";
 import AddButton from "./components/AddButton";
 
+// Initial table data moved to App.js
+const initialTableData = [
+  { id: 1, name: "Alice", percentage: 60, lead: "Y", role: "Vice President" },
+  { id: 2, name: "Eve", percentage: 40, lead: "N", role: "Vice President" },
+  { id: 3, name: "Charlie", percentage: 100, lead: "N", role: "Vice President" },
+  { id: 4, name: "David", percentage: 70, lead: "Y", role: "Vice President" },
+  { id: 5, name: "Olivia", percentage: 85, lead: "Y", role: "Vice President" },
+  { id: 6, name: "Emma", percentage: 90, lead: "N", role: "Vice President" },
+];
+
 function App() {
   const [searchValue, setSearchValue] = useState("");
   const [filterAnchorEl, setFilterAnchorEl] = useState(null);
+  const [tableData, setTableData] = useState(initialTableData); // ✅ Table data state
   const [filters, setFilters] = useState({
     role: "",
     lead: "",
@@ -62,6 +73,28 @@ function App() {
     });
   };
 
+  // ✅ Function to add new role to table
+  const handleAddRole = (newRoleData) => {
+    const newId = Math.max(...tableData.map(row => row.id), 0) + 1;
+    const newRole = {
+      id: newId,
+      role: newRoleData.role,
+      name: newRoleData.name,
+      percentage: Number(newRoleData.percentage),
+      lead: newRoleData.lead,
+    };
+    
+    setTableData(prev => [...prev, newRole]);
+    console.log("New role added:", newRole);
+  };
+
+  // ✅ Function to update role in table (for dropdown changes)
+  const handleUpdateRole = (id, newRole) => {
+    setTableData(prev =>
+      prev.map(row => (row.id === id ? { ...row, role: newRole } : row))
+    );
+  };
+
   const hasActiveFilters = Object.values(filters).some(
     (filter) => filter !== ""
   );
@@ -80,7 +113,7 @@ function App() {
       >
         <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
           <SearchInput value={searchValue} onChange={setSearchValue} />
-          <AddButton />
+          <AddButton onAddRole={handleAddRole} /> {/* ✅ Pass callback */}
         </Box>
 
         <Box sx={{ position: "relative" }}>
@@ -264,7 +297,12 @@ function App() {
       )}
 
       <Box sx={{ padding: 2 }}>
-        <FilterableTable searchValue={searchValue} filters={filters} />
+        <FilterableTable 
+          searchValue={searchValue} 
+          filters={filters}
+          tableData={tableData}          // ✅ Pass data
+          onUpdateRole={handleUpdateRole} // ✅ Pass update function
+        />
       </Box>
     </Box>
   );

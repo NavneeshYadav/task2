@@ -29,16 +29,6 @@ const rolePriority = {
 // Default options for select dropdown
 const roleOptions = Object.keys(rolePriority);
 
-// Sample data
-const initialRows = [
-  { id: 1, name: "Alice", percentage: 60, lead: "Y" },
-  { id: 2, name: "Eve", percentage: 40, lead: "N" },
-  { id: 3, name: "Charlie", percentage: 100, lead: "N" },
-  { id: 4, name: "David", percentage: 70, lead: "Y" },
-  { id: 5, name: "Olivia", percentage: 85, lead: "Y" },
-  { id: 6, name: "Emma", percentage: 90, lead: "N" },
-].map((row) => ({ ...row, role: "Vice President" }));
-
 // Custom comparator for project role
 function customRoleComparator(a, b) {
   return rolePriority[a.role] - rolePriority[b.role];
@@ -58,15 +48,15 @@ function getComparator(order, orderBy) {
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-export default function ProjectTable({ searchValue, filters }) {
+// ✅ Updated to receive data and update function as props
+export default function ProjectTable({ searchValue, filters, tableData, onUpdateRole }) {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("role");
   const [selected, setSelected] = useState([]);
-  const [rows, setRows] = useState(initialRows);
 
   // Filter rows based on search value and filters
   const filteredRows = useMemo(() => {
-    let filtered = rows;
+    let filtered = tableData; // ✅ Use prop data instead of local state
 
     // Apply search filter
     if (searchValue) {
@@ -102,7 +92,7 @@ export default function ProjectTable({ searchValue, filters }) {
     }
 
     return filtered;
-  }, [rows, searchValue, filters]);
+  }, [tableData, searchValue, filters]); // ✅ Updated dependency
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -119,10 +109,11 @@ export default function ProjectTable({ searchValue, filters }) {
     setSelected(newSelected);
   };
 
+  // ✅ Updated to use prop function
   const handleRoleChange = (id, newRole) => {
-    setRows((prev) =>
-      prev.map((row) => (row.id === id ? { ...row, role: newRole } : row))
-    );
+    if (onUpdateRole) {
+      onUpdateRole(id, newRole);
+    }
   };
 
   const isSelected = (id) => selected.includes(id);
