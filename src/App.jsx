@@ -18,6 +18,7 @@ import {
   Divider,
   Chip,
 } from "@mui/material";
+import AddButton from "./components/AddButton";
 
 function App() {
   const [searchValue, setSearchValue] = useState("");
@@ -31,7 +32,12 @@ function App() {
   });
 
   // Filter options
-  const roleOptions = ["Vice President", "Senior Project Manager", "Project Manager", "Assistant Project Manager"];
+  const roleOptions = [
+    "Vice President",
+    "Senior Project Manager",
+    "Project Manager",
+    "Assistant Project Manager",
+  ];
   const leadOptions = ["Y", "N"];
 
   const handleFilterClick = (event) => {
@@ -43,7 +49,7 @@ function App() {
   };
 
   const handleFilterChange = (filterType, value) => {
-    setFilters(prev => ({ ...prev, [filterType]: value }));
+    setFilters((prev) => ({ ...prev, [filterType]: value }));
   };
 
   const handleClearFilters = () => {
@@ -56,7 +62,9 @@ function App() {
     });
   };
 
-  const hasActiveFilters = Object.values(filters).some(filter => filter !== "");
+  const hasActiveFilters = Object.values(filters).some(
+    (filter) => filter !== ""
+  );
   const open = Boolean(filterAnchorEl);
 
   return (
@@ -70,22 +78,24 @@ function App() {
           paddingY: 2,
         }}
       >
-        <SearchInput 
-          value={searchValue}
-          onChange={setSearchValue}
-        />
-        
+        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+          <SearchInput value={searchValue} onChange={setSearchValue} />
+          <AddButton />
+        </Box>
+
         <Box sx={{ position: "relative" }}>
-          <IconButton 
+          <IconButton
             onClick={handleFilterClick}
-            sx={{ 
+            sx={{
               color: hasActiveFilters ? "primary.main" : "inherit",
-              backgroundColor: hasActiveFilters ? "primary.light" : "transparent",
+              backgroundColor: hasActiveFilters
+                ? "primary.light"
+                : "transparent",
             }}
           >
             <TuneIcon />
           </IconButton>
-          
+
           {hasActiveFilters && (
             <Box
               sx={{
@@ -118,7 +128,7 @@ function App() {
             <Typography variant="h6" gutterBottom>
               Filter Options
             </Typography>
-            
+
             <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
               {/* Role Filter */}
               <FormControl fullWidth size="small">
@@ -174,7 +184,9 @@ function App() {
                   size="small"
                   type="number"
                   value={filters.percentageMin}
-                  onChange={(e) => handleFilterChange("percentageMin", e.target.value)}
+                  onChange={(e) =>
+                    handleFilterChange("percentageMin", e.target.value)
+                  }
                   sx={{ flex: 1 }}
                 />
                 <TextField
@@ -182,7 +194,9 @@ function App() {
                   size="small"
                   type="number"
                   value={filters.percentageMax}
-                  onChange={(e) => handleFilterChange("percentageMax", e.target.value)}
+                  onChange={(e) =>
+                    handleFilterChange("percentageMax", e.target.value)
+                  }
                   sx={{ flex: 1 }}
                 />
               </Box>
@@ -191,9 +205,9 @@ function App() {
 
               {/* Clear All Button only */}
               <Box sx={{ display: "flex", justifyContent: "center" }}>
-                <Button 
-                  variant="outlined" 
-                  size="small" 
+                <Button
+                  variant="outlined"
+                  size="small"
                   onClick={handleClearFilters}
                   disabled={!hasActiveFilters}
                 >
@@ -235,7 +249,9 @@ function App() {
             )}
             {(filters.percentageMin || filters.percentageMax) && (
               <Chip
-                label={`Percentage: ${filters.percentageMin || 0}-${filters.percentageMax || 100}%`}
+                label={`Percentage: ${filters.percentageMin || 0}-${
+                  filters.percentageMax || 100
+                }%`}
                 size="small"
                 onDelete={() => {
                   handleFilterChange("percentageMin", "");
