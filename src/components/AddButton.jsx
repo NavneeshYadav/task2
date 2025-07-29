@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import AddIcon from '@mui/icons-material/Add';
 import {
   Button,
   Dialog,
@@ -102,7 +103,7 @@ function AddButton({ onAddRole }) {
 
   return (
     <>
-      <Button variant="contained" color="success" onClick={handleClickOpen}>
+      <Button variant="contained" color="success" onClick={handleClickOpen} startIcon={<AddIcon />}>
         Add Roles
       </Button>
 

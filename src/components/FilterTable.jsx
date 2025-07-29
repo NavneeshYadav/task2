@@ -48,15 +48,21 @@ function getComparator(order, orderBy) {
     : (a, b) => -descendingComparator(a, b, orderBy);
 }
 
-// ✅ Updated to receive data and update function as props
-export default function ProjectTable({ searchValue, filters, tableData, onUpdateRole }) {
+// ✅ Updated to receive selection props
+export default function ProjectTable({ 
+  searchValue, 
+  filters, 
+  tableData, 
+  onUpdateRole, 
+  selectedRows = [], 
+  onSelectionChange 
+}) {
   const [order, setOrder] = useState("asc");
   const [orderBy, setOrderBy] = useState("role");
-  const [selected, setSelected] = useState([]);
 
   // Filter rows based on search value and filters
   const filteredRows = useMemo(() => {
-    let filtered = tableData; // ✅ Use prop data instead of local state
+    let filtered = tableData;
 
     // Apply search filter
     if (searchValue) {
@@ -92,7 +98,7 @@ export default function ProjectTable({ searchValue, filters, tableData, onUpdate
     }
 
     return filtered;
-  }, [tableData, searchValue, filters]); // ✅ Updated dependency
+  }, [tableData, searchValue, filters]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -100,23 +106,38 @@ export default function ProjectTable({ searchValue, filters, tableData, onUpdate
     setOrderBy(property);
   };
 
+  // ✅ Updated checkbox handling to use props
   const handleCheckboxClick = (event, id) => {
     event.stopPropagation();
-    const selectedIndex = selected.indexOf(id);
+    const selectedIndex = selectedRows.indexOf(id);
     let newSelected = [];
-    if (selectedIndex === -1) newSelected = [...selected, id];
-    else newSelected = selected.filter((s) => s !== id);
-    setSelected(newSelected);
+    if (selectedIndex === -1) {
+      newSelected = [...selectedRows, id];
+    } else {
+      newSelected = selectedRows.filter((s) => s !== id);
+    }
+    onSelectionChange(newSelected);
   };
 
-  // ✅ Updated to use prop function
+  // ✅ Select all functionality
+  const handleSelectAllClick = (event) => {
+    if (event.target.checked) {
+      const newSelected = filteredRows.map((row) => row.id);
+      onSelectionChange(newSelected);
+    } else {
+      onSelectionChange([]);
+    }
+  };
+
   const handleRoleChange = (id, newRole) => {
     if (onUpdateRole) {
       onUpdateRole(id, newRole);
     }
   };
 
-  const isSelected = (id) => selected.includes(id);
+  const isSelected = (id) => selectedRows.includes(id);
+  const numSelected = selectedRows.length;
+  const rowCount = filteredRows.length;
 
   return (
     <Paper>
@@ -124,7 +145,18 @@ export default function ProjectTable({ searchValue, filters, tableData, onUpdate
         <Table>
           <TableHead sx={{ backgroundColor: "#e1e6ed" }}>
             <TableRow>
-              <TableCell padding="checkbox" />
+              <TableCell padding="checkbox">
+                {/* ✅ Select All checkbox */}
+                <Checkbox
+                  color="primary"
+                  indeterminate={numSelected > 0 && numSelected < rowCount}
+                  checked={rowCount > 0 && numSelected === rowCount}
+                  onChange={handleSelectAllClick}
+                  inputProps={{
+                    'aria-label': 'select all roles',
+                  }}
+                />
+              </TableCell>
               <TableCell>
                 <TableSortLabel
                   active={orderBy === "role"}
@@ -223,6 +255,9 @@ export default function ProjectTable({ searchValue, filters, tableData, onUpdate
                         <Checkbox
                           checked={isItemSelected}
                           onClick={(event) => handleCheckboxClick(event, row.id)}
+                          inputProps={{
+                            'aria-labelledby': `enhanced-table-checkbox-${row.id}`,
+                          }}
                         />
                       </TableCell>
 
