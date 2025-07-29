@@ -107,13 +107,11 @@ function App() {
   // ✅ Function to update entire role record
   const handleUpdateRole = (updatedRoleData) => {
     setTableData((prev) =>
-      prev.map((row) => 
-        row.id === updatedRoleData.id 
-          ? { ...row, ...updatedRoleData }
-          : row
+      prev.map((row) =>
+        row.id === updatedRoleData.id ? { ...row, ...updatedRoleData } : row
       )
     );
-    
+
     // Clear selection after update
     setSelectedRows([]);
     console.log("Role updated:", updatedRoleData);
@@ -126,11 +124,13 @@ function App() {
     }
 
     // Filter out selected rows from table data
-    setTableData((prev) => prev.filter((row) => !selectedRows.includes(row.id)));
-    
+    setTableData((prev) =>
+      prev.filter((row) => !selectedRows.includes(row.id))
+    );
+
     // Clear selected rows after deletion
     setSelectedRows([]);
-    
+
     console.log(`Deleted ${selectedRows.length} role(s)`);
   };
 
@@ -141,7 +141,7 @@ function App() {
 
   // ✅ Function to get selected role data
   const getSelectedRoleData = () => {
-    return tableData.filter(row => selectedRows.includes(row.id));
+    return tableData.filter((row) => selectedRows.includes(row.id));
   };
 
   const hasActiveFilters = Object.values(filters).some(
@@ -160,16 +160,23 @@ function App() {
           paddingY: 2,
         }}
       >
-        <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: "center",
+            gap: 2,
+          }}
+        >
           <SearchInput value={searchValue} onChange={setSearchValue} />
           <AddButton onAddRole={handleAddRole} />
-          <UpdateButton 
+          <UpdateButton
             onUpdateRole={handleUpdateRole}
             selectedCount={selectedRows.length}
             selectedRoles={getSelectedRoleData()}
           />
-          <DeleteButton 
-            onDelete={handleDeleteSelected} 
+          <DeleteButton
+            onDelete={handleDeleteSelected}
             selectedCount={selectedRows.length}
             selectedRoles={getSelectedRoleData()}
           />
