@@ -12,6 +12,7 @@ import {
   MenuItem,
   Box,
   Typography,
+  Slide,
 } from "@mui/material";
 
 // Role options (same as in your filter table)
@@ -24,7 +25,12 @@ const roleOptions = [
 
 const leadOptions = ["Y", "N"];
 
-function AddButton({ onAddRole }) { // ✅ Accept callback prop
+// ✅ Slide transition component
+const Transition = React.forwardRef(function Transition(props, ref) {
+  return <Slide direction="left" ref={ref} {...props} />;
+});
+
+function AddButton({ onAddRole }) {
   const [open, setOpen] = useState(false);
   const [formData, setFormData] = useState({
     role: "Vice President", // default value
@@ -86,7 +92,7 @@ function AddButton({ onAddRole }) { // ✅ Accept callback prop
       return;
     }
 
-    // ✅ Call the callback function to add the role
+    // Call the callback function to add the role
     if (onAddRole) {
       onAddRole(formData);
     }
@@ -105,8 +111,20 @@ function AddButton({ onAddRole }) { // ✅ Accept callback prop
         onClose={handleClose} 
         maxWidth="sm" 
         fullWidth
+        TransitionComponent={Transition} // ✅ Add slide transition
+        keepMounted // ✅ Keep mounted for better animation
         PaperProps={{
-          sx: { borderRadius: 2 }
+          sx: { 
+            borderRadius: 2,
+            // ✅ Optional: Add some shadow for better visual effect
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.12)",
+          }
+        }}
+        // ✅ Optional: Custom backdrop styling
+        BackdropProps={{
+          sx: {
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+          }
         }}
       >
         <DialogTitle sx={{ pb: 1 }}>
